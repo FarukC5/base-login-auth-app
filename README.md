@@ -16,9 +16,9 @@ Open [http://localhost:5000](http://localhost:5000) to view it in your browser.
 * frontend of the application with `npm start` in `/client` project folder.\
 Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
 
-port: 5000
-secret: base-login-app
-mongoUri: mongodb+srv://farukc:mongofaruk@cluster0.bvdt0.mongodb.net/dataBaseProject?retryWrites=true&w=majority
+ port: 5000 \
+ secret: base-login-app \
+ mongoUri: mongodb+srv://farukc:mongofaruk@cluster0.bvdt0.mongodb.net/dataBaseProject?retryWrites=true&w=majority \
 
 **Packages:**
 
