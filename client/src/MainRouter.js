@@ -1,6 +1,5 @@
 import React from "react";
-import { Switch, Route } from "react-router-dom"; // 5.3.0
-//import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { Switch, Route } from "react-router-dom";
 import Home from "./core/Home";
 import Register from "./user/Register";
 import Login from "./user/Login";

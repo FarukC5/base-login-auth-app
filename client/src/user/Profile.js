@@ -41,7 +41,7 @@ const Profile = ({ match }) => {
 
   useEffect(() => {
     read({ userId: match.params.userId }).then((data) => {
-    //  console.log(data);
+      
       if (data && data.error) {
         setValues({ ...values, error: data.error });
       } else {
@@ -59,8 +59,6 @@ const Profile = ({ match }) => {
     ;
   };
   
-//console.log(values)
-
   if (values.error || values.name === undefined) {
     logout();
     return <Redirect to={"/"} />;

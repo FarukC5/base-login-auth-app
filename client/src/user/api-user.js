@@ -30,12 +30,6 @@ const read = async (params, token) => {
   try {
     const res = await axios.get(
       `api/users/${params.userId}`
-      /* ,
-      {
-        headers: {
-          Authorization: "Bearer " + token,
-        },
-      } */
     );
     return res.data;
   } catch (err) {
