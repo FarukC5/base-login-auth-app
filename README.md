@@ -18,7 +18,7 @@ Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
 
  port: 5000 \
  secret: base-login-app \
- mongoUri: mongodb+srv://farukc:mongofaruk@cluster0.bvdt0.mongodb.net/dataBaseProject?retryWrites=true&w=majority \
+ mongoUri: mongodb+srv://farukc:mongofaruk@cluster0.bvdt0.mongodb.net/dataBaseProject?retryWrites=true&w=majority 
 
 **Packages:**
 
