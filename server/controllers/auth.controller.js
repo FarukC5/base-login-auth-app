@@ -1,51 +1,38 @@
-import User from "../models/user.model";
-import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
-import validateLoginInput from "../validation/login";
-import config from "../config/config";
-require("dotenv").config();
+const User = require("../models/user.model");
+const jwt = require("jsonwebtoken");
+const expressJwt = require("express-jwt");
+const config = require("../config/config.js");
 
 const secretKey = config.secret;
 
 const login = (req, res) => {
-  const { errors, isValid } = validateLoginInput(req.body);
-
-  if (!isValid) {
-    return res.status(400).json(errors);
-  }
-
-  const email = req.body.email;
-  const password = req.body.password;
-
-  User.findOne({ email }).then((user) => {
-    if (!user) {
-      return res.status(404).json({ email: "Email not found" });
+  User.findOne({ email: req.body.email }, (err, user) => {
+    if (err || !user) {
+      return res.status(401).json({ error: "User not found!" });
     }
-    bcrypt.compare(password, user.password).then((isMatch) => {
-      if (isMatch) {
-        const payload = {
-          id: user.id,
-          name: user.name,
-        };
 
-        jwt.sign(
-          payload,
-          secretKey,
-          {
-            expiresIn: 600,
-          },
-          (err, token) => {
-            res.json({
-              success: true,
-              token: "Bearer " + token,
-            });
-          }
-        );
-      } else {
-        return res.status(400).json({ password: "Password incorrect" });
-      }
+    if (!user.authenticate(req.body.password)) {
+      return res.status(401).json({ error: "Email and password don't match" });
+    }
+
+    const token = jwt.sign({ _id: user._id }, secretKey, {expiresIn: 600});
+    res.cookie("token", token, { httpOnly: true});
+    return res.status(200).json({
+      token
     });
   });
 };
 
-export default { login };
+const logout = (req, res) => {
+  res.clearCookie("token");
+  return res.status(200).json({ message: "Logged Out!" });
+};
+
+const requireSignin = expressJwt({
+  secret: secretKey,
+  algorithms: ["HS256"],
+  userProperty: "auth",
+  getToken: (req) => req.cookies.token,
+});
+
+module.exports = { login, logout, requireSignin };

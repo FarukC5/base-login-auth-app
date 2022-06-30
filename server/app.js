@@ -1,26 +1,20 @@
-import template from "./template";
-import express from "express";
-import cors from "cors";
-import helmet from "helmet";
-import compress from "compression";
-import userRoute from "./routes/users.routes";
-import authRoute from "./routes/auth.routes";
-const passport = require("passport");
+const express = require("express");
+const cors = require("cors");
+const cookieParser = require("cookie-parser");
 
 const app = express();
 
-app.use(express.json({ extended: false }));
-app.use(compress());
-app.use(helmet());
 app.use(cors());
-app.use(passport.initialize());
-require("./config/passport")(passport);
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
+app.use(cookieParser());
 
-app.get("/", (req, res) => {
-  res.status(200).send(template());
+app.use("/", require("./routes/auth.routes"));
+app.use("/", require("./routes/users.routes"));
+
+app.use((err, req, res, next) => {
+  if (err.name === "UnauthorizedError") {
+    res.status(401).json({ error: `${err.name}: ${err.message}` });
+  }
 });
-
-app.use("/api/users", userRoute);
-app.use("/api/users", authRoute);
-
-export default app;
+module.exports = app;

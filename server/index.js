@@ -1,6 +1,6 @@
-import config from "./config/config";
-import mongoose from "mongoose";
-import app from "./app";
+const mongoose = require("mongoose");
+const config = require("./config/config");
+const app = require("./app");
 
 mongoose.Promise = global.Promise;
 mongoose
