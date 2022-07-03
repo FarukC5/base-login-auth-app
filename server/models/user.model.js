@@ -4,6 +4,7 @@ const crypto = require("crypto");
 const UserSchema = new mongoose.Schema({
   name: {
     type: String,
+    unique: true,
     trim: true,
     required: "Name is required",
   },
@@ -49,6 +50,11 @@ UserSchema.methods = {
     return Math.round(new Date().valueOf() * Math.random()) + "";
   },
 };
+
+UserSchema.path("name").validate(async (name) => {
+  const nameCount = await mongoose.models.User.countDocuments({ name });
+  return !nameCount;
+}, "Name already exists!");
 
 UserSchema.path("hashed_password").validate(function (v) {
   if (this._password && this._password.length < 6) {
