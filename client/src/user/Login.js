@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Card,
   CardActions,
@@ -14,6 +14,7 @@ import { Redirect, Link } from "react-router-dom";
 import jwtDecode from "jwt-decode";
 import { login } from "../auth/api-auth";
 import validateLoginInput from "../validation/login";
+import { list } from "../user/api-user";
 
 const useStyles = makeStyles(() => ({
   container: {
@@ -35,44 +36,59 @@ const useStyles = makeStyles(() => ({
 
 const Login = () => {
   const classes = useStyles();
-  const [token, setToken] = useState();
   const [values, setValues] = useState({
     email: "",
     password: "",
     error: "",
     redirectToReferrer: false,
+    token: null,
+    users: [],
+    inputError: {},
   });
-  const [inputError, setInputError] = useState({});
 
-  const clickSubmit = () => {
+  useEffect(() => {
+    list().then((data) => {
+      if (data.error) {
+        setValues({ ...values, error: data.error });
+      } else {
+        setValues({ ...values, users: data });
+      }
+    });
+    //eslint-disable-next-line
+  }, []);
+
+  const clickSubmit = async () => {
     const user = {
       email: values.email || undefined,
       password: values.password || undefined,
     };
 
-    const { errors, isValid } = validateLoginInput(user);
+    const { errors, isValid } = validateLoginInput(user, values);
 
     if (!isValid) {
-      return setInputError(errors);
+      return setValues({ ...values, inputError: errors });
     }
 
-    login(user).then((data) => {
+   await login(user).then((data) => {
       if (data && data.error) {
-        setValues({ ...values,  error:data.error ,});
+        setValues({ ...values, error: data.error });
       } else {
-        setToken(data.token);
-        setValues({ ...values,  error: "" , redirectToReferrer: true });
+        setValues({
+          ...values,
+          error: "",
+          redirectToReferrer: true,
+          token: data.token,
+        });
       }
     });
   };
 
   const handleChange = (name) => (e) => {
-    setInputError({});
-    setValues({ ...values, [name]: e.target.value, error: "" });
+    setValues({ ...values, [name]: e.target.value, error: "", inputError: {} });
   };
 
   const userId = () => {
-    return jwtDecode(token)._id;
+    return jwtDecode(values.token)._id;
   };
 
   const { redirectToReferrer } = values;
@@ -98,7 +114,7 @@ const Login = () => {
               margin="normal"
             />
             <DialogContentText color="error">
-              {inputError.email}
+              {values.inputError.email}
             </DialogContentText>
 
             <TextField
@@ -111,10 +127,9 @@ const Login = () => {
             />
 
             <DialogContentText color="error">
-              {inputError.password}
+              {values.inputError.password}
               {values.error}
             </DialogContentText>
-          
           </CardContent>
 
           <CardActions className={classes.cardAction}>
