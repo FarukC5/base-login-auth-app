@@ -3,7 +3,7 @@ import isEmpty from "is-empty";
 
 const validateRegisterInput = (user, values) => {
   let errors = {};
-  
+
   user.name = !isEmpty(user.name) ? user.name : "";
   user.email = !isEmpty(user.email) ? user.email : "";
   user.password = !isEmpty(user.password) ? user.password : "";
@@ -20,25 +20,40 @@ const validateRegisterInput = (user, values) => {
   } else if (!Validator.isEmail(user.email)) {
     errors.email = "Email is invalid";
   }
- 
+
   if (!Validator.isLength(user.password, { min: 6 })) {
     errors.password = "Password must be at least 6 characters";
   }
 
   if (!Validator.equals(user.password, values.repeatPassword)) {
     errors.repeatPassword = "Passwords must match";
-  }  else if (!Validator.isLength(values.repeatPassword, {min: 6})) {
-    errors.repeatPassword = "Repeat password must be at least 6 characters"
+  } else if (!Validator.isLength(values.repeatPassword, { min: 6 })) {
+    errors.repeatPassword = "Repeat password must be at least 6 characters";
   }
 
   if (Validator.isEmpty(user.password)) {
     errors.password = "Password field is required";
   }
- 
+
   if (Validator.isEmpty(values.repeatPassword)) {
     errors.repeatPassword = "Repeat password field is required";
   }
 
+  const { users } = values;
+
+  let userObject;
+
+  for (userObject in users) {
+   
+    if (Validator.equals(user.email, users[userObject].email)) {
+      errors.email = "Email already exists!";
+    }
+
+    if (Validator.equals(user.name, users[userObject].name)) {
+      errors.name = "Name already exists!";
+    }
+  }
+  
   return {
     errors,
     isValid: isEmpty(errors),
