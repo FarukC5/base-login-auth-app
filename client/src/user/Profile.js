@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Redirect } from "react-router-dom";
+import { Redirect, useHistory } from "react-router-dom";
 import {
   Typography,
   CardContent,
@@ -41,24 +41,24 @@ const Profile = ({ match }) => {
 
   useEffect(() => {
     read({ userId: match.params.userId }).then((data) => {
-      
       if (data && data.error) {
         setValues({ ...values, error: data.error });
       } else {
-        setValues({ ...values, name: data.name });
+        setValues({ ...values, name: data.name});
       }
     });
     //eslint-disable-next-line
   }, [match.params.userId]);
 
+  const history = useHistory();
+
   const logoutUser = () => {
     setValues({ ...values, open: true });
     setTimeout(() => {
-      logout().then(() => window.location.assign("/"));
+      logout().then(() => history.push("/"));
     }, 1234);
-    ;
   };
-  
+
   if (values.error || values.name === undefined) {
     logout();
     return <Redirect to={"/"} />;
@@ -87,7 +87,7 @@ const Profile = ({ match }) => {
             {values.error && (
               <Typography component="p" color="error">
                 {values.error}
-               <Redirect to="/" />
+                <Redirect to="/" />
               </Typography>
             )}
           </CardContent>
