@@ -46,23 +46,22 @@ const Register = () => {
     repeatPassword: "",
     open: false,
     error: "",
+    users: [],
+    inputError: {},
   });
-  console.log(values);
-  const [users, setUsers] = useState([]);
-  const [inputError, setInputError] = useState({});
-
+  
   useEffect(() => {
     list().then((data) => {
       if (data.error) {
         setValues({ ...values, error: data.error });
       } else {
-        setUsers(data);
+        setValues({ ...values, users: data });
       }
     });
     //eslint-disable-next-line
   }, []);
 
-  const clickHandler = () => {
+  const clickHandler = async () => {
     const user = {
       name: values.name || undefined,
       email: values.email || undefined,
@@ -71,19 +70,11 @@ const Register = () => {
 
     const { errors, isValid } = validateRegisterInput(user, values);
 
-    for (let i = 0; i < users.length; i++) {
-      if (user.email === users[i].email) {
-        errors.email = "Email already exists!";
-
-        return setInputError(errors);
-      }
+     if (!isValid) {
+      return setValues({ ...values, inputError: errors });
     }
-
-    if (!isValid) {
-      return setInputError(errors);
-    }
-
-    create(user).then((data) => {
+ 
+    await create(user).then((data) => {
       if (data.error) {
         setValues({ ...values, error: data.error });
       } else {
@@ -93,8 +84,7 @@ const Register = () => {
   };
 
   const changeHandler = (name) => (e) => {
-    setInputError({});
-    setValues({ ...values, [name]: e.target.value, error: "" });
+    setValues({ ...values, [name]: e.target.value, error: "", inputError: {} });
   };
 
   return (
@@ -111,7 +101,7 @@ const Register = () => {
               margin="normal"
             />
             <DialogContentText color="error">
-              {inputError.name}
+              {values.inputError.name}
             </DialogContentText>
             <TextField
               id="email"
@@ -121,7 +111,7 @@ const Register = () => {
               margin="normal"
             />
             <DialogContentText color="error">
-              {inputError.email}
+              {values.inputError.email}
             </DialogContentText>
             <TextField
               id="password"
@@ -132,7 +122,7 @@ const Register = () => {
               margin="normal"
             />
             <DialogContentText color="error">
-              {inputError.password}
+              {values.inputError.password}
             </DialogContentText>
             <TextField
               id="repeatPassword"
@@ -144,7 +134,8 @@ const Register = () => {
             />
 
             <DialogContentText color="error">
-              {inputError.repeatPassword}
+              {values.inputError.repeatPassword}
+              <br/>
               {values.error}
             </DialogContentText>
           </CardContent>
